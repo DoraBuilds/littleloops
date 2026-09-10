@@ -48,30 +48,26 @@ something in front of GitHub Pages that can add headers. The common
 zero-cost option is **Cloudflare** (free tier) proxying the `littleloops.xyz`
 domain instead of pointing DNS straight at GitHub Pages.
 
-If/when that's set up, add a Cloudflare Worker (or a Transform Rule, if the
-plan supports response-header transforms) that adds these headers to every
-response:
+The Worker that adds these headers is already written:
+`cloudflare/security-headers-worker.js`, deployed via
+`cloudflare/wrangler.toml`.
 
-```js
-export default {
-  async fetch(request, env, ctx) {
-    const response = await fetch(request);
-    const headers = new Headers(response.headers);
-    headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
-    headers.set('X-Frame-Options', 'DENY');
-    headers.set('X-Content-Type-Options', 'nosniff');
-    // frame-ancestors is redundant with X-Frame-Options above, but include
-    // it too since it's the modern replacement and some browsers prefer it.
-    headers.append('Content-Security-Policy', "frame-ancestors 'none'");
-    return new Response(response.body, { status: response.status, headers });
-  },
-};
-```
+Setup needs a Cloudflare account and a DNS change, both outside what can be
+done from this repo — this is the one manual step left:
 
-This isn't set up — it needs a Cloudflare account and a DNS change, both
-outside what can be done from this repo. Until then, clickjacking protection
-for this app is effectively undocumented/absent, which is the residual risk
-this issue originally flagged.
+1. Add `littleloops.xyz` as a site in a Cloudflare account (free tier is
+   enough) and switch the domain's nameservers to the two Cloudflare gives
+   you (at whatever registrar the domain was bought through)
+2. Once Cloudflare shows the zone as active, run from `cloudflare/`:
+   ```sh
+   npx wrangler deploy
+   ```
+   (first run prompts a browser login to authorize wrangler against the
+   Cloudflare account)
+
+Until this is done, clickjacking protection for this app is effectively
+undocumented/absent, which is the residual risk issue #60 originally
+flagged, tracked to completion in #172.
 
 ## Verification
 

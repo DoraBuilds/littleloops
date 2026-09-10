@@ -1,0 +1,12 @@
+name = "littleloops-security-headers"
+main = "security-headers-worker.js"
+compatibility_date = "2026-09-01"
+
+# Runs the worker on every request to the apex + www before it reaches
+# GitHub Pages, once littleloops.xyz's nameservers point at Cloudflare.
+# Update after the domain is added to a Cloudflare account (see
+# docs/deployment-hardening.md for the one-time account/DNS steps).
+routes = [
+  { pattern = "littleloops.xyz/*", zone_name = "littleloops.xyz" },
+  { pattern = "www.littleloops.xyz/*", zone_name = "littleloops.xyz" },
+]
