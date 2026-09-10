@@ -70,6 +70,9 @@ Deno.serve(async (req) => {
       metadata: { household_id: household.id },
       success_url: `${APP_BASE_URL}/parent/schedules?checkout=success`,
       cancel_url: `${APP_BASE_URL}/parent/schedules?checkout=cancelled`,
+      // Shows a "Add promotion code" field at checkout — used for
+      // friends & family 100%-off codes (see Stripe dashboard > Coupons).
+      allow_promotion_codes: true,
     };
 
     let session: Stripe.Checkout.Session;
