@@ -11,6 +11,8 @@ import { APP_VERSION, getRefreshUrl, getVersionManifestUrl } from "@/lib/app-ver
 const AuthCallback = lazy(() => import("./pages/AuthCallback.tsx"));
 const Index = lazy(() => import("./pages/Index.tsx"));
 const SchedulesPage = lazy(() => import("./pages/SchedulesPage.tsx"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy.tsx"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const queryClient = new QueryClient();
@@ -55,6 +57,8 @@ const AppShell = () => {
           <Route path="/" element={<Index />} />
           <Route path="/parent/schedules" element={<SchedulesPage />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

@@ -546,6 +546,10 @@ export const LandingPage = ({ onGetStarted }: Props) => {
           </span>
         </div>
         <p style={{ fontSize: 12, color: T.inkMute, margin: 0 }}>Made with love for families everywhere.</p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 10 }}>
+          <a href="/privacy" style={{ fontSize: 12, color: T.inkMute, textDecoration: 'underline' }}>Privacy</a>
+          <a href="/terms" style={{ fontSize: 12, color: T.inkMute, textDecoration: 'underline' }}>Terms</a>
+        </div>
       </div>
 
     </div>
