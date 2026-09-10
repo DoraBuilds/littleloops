@@ -62,21 +62,42 @@ Deno.serve(async (req) => {
       });
     }
 
-    const session = await stripe.checkout.sessions.create({
+    const baseParams: Stripe.Checkout.SessionCreateParams = {
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      // Reuse the existing Stripe customer if this household subscribed
-      // before (e.g. resubscribing after cancellation); otherwise let
-      // Stripe create one and prefill the account email.
-      ...(household.stripe_customer_id
-        ? { customer: household.stripe_customer_id }
-        : { customer_email: userData.user.email }),
       client_reference_id: household.id,
       subscription_data: { metadata: { household_id: household.id } },
       metadata: { household_id: household.id },
       success_url: `${APP_BASE_URL}/parent/schedules?checkout=success`,
       cancel_url: `${APP_BASE_URL}/parent/schedules?checkout=cancelled`,
-    });
+    };
+
+    let session: Stripe.Checkout.Session;
+    try {
+      // Reuse the existing Stripe customer if this household subscribed
+      // before (e.g. resubscribing after cancellation); otherwise let
+      // Stripe create one and prefill the account email.
+      session = await stripe.checkout.sessions.create(
+        household.stripe_customer_id
+          ? { ...baseParams, customer: household.stripe_customer_id }
+          : { ...baseParams, customer_email: userData.user.email },
+      );
+    } catch (error) {
+      // A saved customer id can go stale (deleted in Stripe, or — as
+      // happened once here — left over from switching test/live API keys,
+      // which don't share customer records). Retry as a brand-new
+      // customer rather than hard-failing checkout for the whole household.
+      const isMissingCustomer =
+        error instanceof Stripe.errors.StripeInvalidRequestError &&
+        error.code === "resource_missing" &&
+        error.param === "customer";
+      if (!isMissingCustomer) throw error;
+
+      console.warn(
+        `create-checkout-session: stale stripe_customer_id ${household.stripe_customer_id} for household ${household.id}, retrying as a new customer`,
+      );
+      session = await stripe.checkout.sessions.create({ ...baseParams, customer_email: userData.user.email });
+    }
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
