@@ -396,7 +396,7 @@ export const ParentSettings = ({
   const handleStartCheckout = async () => {
     setBillingLoading(true);
     setBillingError(null);
-    const { url, error: checkoutError } = await startCheckout();
+    const { url, error: checkoutError } = await startCheckout('monthly');
     if (url) {
       window.location.assign(url);
       return;
@@ -513,7 +513,7 @@ export const ParentSettings = ({
                   key === 'admin' ? 'Reset and restart' :
                   !isSignedIn ? 'Sign in to subscribe' :
                   household?.subscriptionStatus === 'active' || household?.subscriptionStatus === 'trialing' ? 'Active' :
-                  household?.subscriptionStatus === 'past_due' ? 'Payment needs attention' : '€9.99/month';
+                  household?.subscriptionStatus === 'past_due' ? 'Payment needs attention' : 'From €6.99/month';
 
                 return (
                   <button
@@ -1029,10 +1029,9 @@ export const ParentSettings = ({
                       <>
                         <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>✅ Little Loops is active</div>
                         <div style={{ fontSize: 15, color: T.inkMute, lineHeight: 1.5, marginBottom: 14 }}>
-                          €9.99/month
                           {household.currentPeriodEnd
-                            ? ` · renews ${new Date(household.currentPeriodEnd).toLocaleDateString()}`
-                            : ''}
+                            ? `Renews ${new Date(household.currentPeriodEnd).toLocaleDateString()}`
+                            : 'Manage your plan and billing details below.'}
                         </div>
                         <button
                           onClick={() => void handleOpenBillingPortal()}
@@ -1060,14 +1059,14 @@ export const ParentSettings = ({
                       <>
                         <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>Subscribe to Little Loops</div>
                         <div style={{ fontSize: 15, color: T.inkMute, lineHeight: 1.5, marginBottom: 14 }}>
-                          €9.99/month for full access, synced across every device.
+                          €6.99/month (or €70/year) for full access, synced across every device.
                         </div>
                         <button
                           onClick={() => void handleStartCheckout()}
                           disabled={billingLoading}
                           style={{ background: T.orange, color: '#fff', border: 'none', borderRadius: 12, padding: '9px 18px', fontSize: 15, fontWeight: 700, cursor: billingLoading ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}
                         >
-                          {billingLoading ? 'Loading…' : 'Subscribe — €9.99/mo'}
+                          {billingLoading ? 'Loading…' : 'Subscribe — €6.99/mo'}
                         </button>
                       </>
                     )}

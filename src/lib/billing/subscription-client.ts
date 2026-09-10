@@ -1,16 +1,23 @@
 import { getSupabaseClient } from '@/lib/supabase/client';
 
+export type BillingPlan = 'monthly' | 'annual';
+
 // supabase.functions.invoke attaches the current session's access token
 // automatically, which is what create-checkout-session/customer-portal-session
 // use to resolve the caller's household via RLS — see
 // docs/subscription-billing-architecture.md.
-const invokeForUrl = async (functionName: 'create-checkout-session' | 'customer-portal-session') => {
+const invokeForUrl = async (
+  functionName: 'create-checkout-session' | 'customer-portal-session',
+  body?: Record<string, unknown>
+) => {
   const supabase = getSupabaseClient();
   if (!supabase) {
     return { url: null, error: 'Supabase is not configured yet.' };
   }
 
-  const { data, error } = await supabase.functions.invoke<{ url?: string; error?: string }>(functionName);
+  const { data, error } = await supabase.functions.invoke<{ url?: string; error?: string }>(functionName, {
+    body,
+  });
 
   if (error) {
     return { url: null, error: error.message };
@@ -22,5 +29,5 @@ const invokeForUrl = async (functionName: 'create-checkout-session' | 'customer-
   return { url: data.url, error: null };
 };
 
-export const startCheckout = () => invokeForUrl('create-checkout-session');
+export const startCheckout = (plan: BillingPlan) => invokeForUrl('create-checkout-session', { plan });
 export const openBillingPortal = () => invokeForUrl('customer-portal-session');

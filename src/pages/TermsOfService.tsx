@@ -13,10 +13,11 @@ const TermsOfService = () => (
         <section>
           <h2 className="text-lg font-bold">1. Who you're contracting with</h2>
           <p className="mt-2">
-            Little Loops (littleloops.xyz) is provided by Dora Angelov, an
-            individual based in Barcelona, Spain, trading as Little Loops
-            ("we", "us"). By creating an account or subscribing, you're
-            entering into this agreement with Dora Angelov directly. Contact:{" "}
+            Little Loops (littleloops.xyz) is provided by Dora Angelov
+            (NIF Y4286176W), an individual based in Barcelona, Spain, trading
+            as Little Loops ("we", "us"). By creating an account or
+            subscribing, you're entering into this agreement with Dora
+            Angelov directly. Contact:{" "}
             <a className="text-primary underline" href="mailto:dora.angelov@gmail.com">
               dora.angelov@gmail.com
             </a>
@@ -46,7 +47,7 @@ const TermsOfService = () => (
         <section>
           <h2 className="text-lg font-bold">4. Subscription and billing</h2>
           <ul className="mt-2 list-disc space-y-1 pl-5">
-            <li>Little Loops offers a household subscription at €9.99/month, billed automatically each month until cancelled.</li>
+            <li>Little Loops offers a household subscription at €6.99/month, or €70/year (paid annually), billed automatically until cancelled.</li>
             <li>Payment is processed by Stripe. We don't see or store your full card details.</li>
             <li>Prices are shown inclusive of any VAT required for your location, where applicable.</li>
             <li>You can cancel anytime from Parent Settings, or by emailing us. Cancelling stops future charges; you keep access until the end of the period you already paid for.</li>

@@ -10,7 +10,10 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   httpClient: Stripe.createFetchHttpClient(),
 });
 
-const PRICE_ID = Deno.env.get("STRIPE_PRICE_ID")!;
+const PRICE_IDS = {
+  monthly: Deno.env.get("STRIPE_PRICE_ID_MONTHLY")!,
+  annual: Deno.env.get("STRIPE_PRICE_ID_ANNUAL")!,
+} as const;
 const APP_BASE_URL = Deno.env.get("APP_BASE_URL") ?? "https://www.littleloops.xyz";
 
 Deno.serve(async (req) => {
@@ -26,6 +29,10 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const body = await req.json().catch(() => ({}));
+    const plan = body?.plan === "annual" ? "annual" : "monthly";
+    const priceId = PRICE_IDS[plan];
 
     // Scoped to the caller's own JWT so RLS decides which household they
     // can see — the household id is never trusted from the request body.
@@ -57,7 +64,7 @@ Deno.serve(async (req) => {
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      line_items: [{ price: PRICE_ID, quantity: 1 }],
+      line_items: [{ price: priceId, quantity: 1 }],
       // Reuse the existing Stripe customer if this household subscribed
       // before (e.g. resubscribing after cancellation); otherwise let
       // Stripe create one and prefill the account email.

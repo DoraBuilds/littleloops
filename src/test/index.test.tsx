@@ -346,6 +346,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "now",
       updatedAt: "now",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
 
     const firstCloudChildren: Child[] = [
@@ -408,6 +410,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -450,6 +454,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -490,6 +496,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -537,6 +545,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     localStorage.setItem(
       "little_loops_data::user:user-1",
@@ -605,6 +615,39 @@ describe("Index", () => {
     expect(screen.queryByTestId("child-count")).toBeNull();
   });
 
+  it("shows the paywall instead of the app for a signed-in household without an active subscription", async () => {
+    authState.status = "signed_in";
+    authState.user = { id: "user-1", email: "parent@example.com" };
+    authState.householdStatus = "ready";
+    authState.household = {
+      id: "house-1",
+      name: "Little Loops Family",
+      timezone: "Europe/Madrid",
+      homeScene: "kite",
+      createdByUserId: "user-1",
+      createdAt: "2026-04-20T10:00:00Z",
+      updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "none",
+      currentPeriodEnd: null,
+    };
+    loadCloudHouseholdState.mockResolvedValue({
+      homeScene: "kite",
+      children: [
+        {
+          id: "1",
+          name: "Lily",
+          morning: [{ id: "m1", title: "Make bed", icon: "bed", completed: false }],
+          evening: [{ id: "e1", title: "Go to bed", icon: "moon-star", completed: false }],
+        },
+      ],
+    });
+
+    render(<Index />);
+
+    expect(await screen.findByTestId("paywall-screen")).toBeInTheDocument();
+    expect(screen.queryByTestId("existing-family-recovery-screen")).toBeNull();
+  });
+
   it("shows recovery first on a fresh signed-in device with an empty household", async () => {
     authState.status = "signed_in";
     authState.user = { id: "user-1", email: "parent@example.com" };
@@ -617,6 +660,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -640,6 +685,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -671,6 +718,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockRejectedValue(new Error("Network offline"));
     localStorage.setItem(
@@ -700,6 +749,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState
       .mockRejectedValueOnce(new Error("Supabase timeout"))
@@ -735,6 +786,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -775,6 +828,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -806,6 +861,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -863,6 +920,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -897,6 +956,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -937,6 +998,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -980,6 +1043,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     // Re-read returns stale/empty data — simulates replication lag.
     loadCloudHouseholdState.mockResolvedValue({
@@ -1013,6 +1078,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -1042,6 +1109,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -1082,6 +1151,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -1105,6 +1176,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -1137,6 +1210,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -1183,6 +1258,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -1206,6 +1283,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -1240,6 +1319,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -1265,6 +1346,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -1295,6 +1378,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -1322,6 +1407,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",
@@ -1352,6 +1439,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     deleteCloudHousehold.mockResolvedValue(undefined);
     loadCloudHouseholdState.mockResolvedValue({
@@ -1400,6 +1489,8 @@ describe("Index", () => {
       createdByUserId: "user-1",
       createdAt: "2026-04-20T10:00:00Z",
       updatedAt: "2026-04-20T10:00:00Z",
+      subscriptionStatus: "active",
+      currentPeriodEnd: null,
     };
     loadCloudHouseholdState.mockResolvedValue({
       homeScene: "kite",

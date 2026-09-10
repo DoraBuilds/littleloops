@@ -3,6 +3,7 @@ import { LandingPage } from '@/pages/LandingPage';
 import { AccountEntryScreen } from '@/components/AccountEntryScreen';
 import { ExistingFamilyRecoveryScreen } from '@/components/ExistingFamilyRecoveryScreen';
 import { HouseholdLoadErrorScreen } from '@/components/HouseholdLoadErrorScreen';
+import { PaywallScreen } from '@/components/PaywallScreen';
 import { ImportFamilySetupScreen } from '@/components/ImportFamilySetupScreen';
 import { KidHome } from '@/components/KidHome';
 import { KidApp } from '@/components/KidApp';
@@ -899,6 +900,20 @@ const Index = () => {
 
   if (!isReady) {
     return null;
+  }
+
+  // Hard paywall: every signed-in household needs an active/trialing
+  // subscription to use anything past this point. Only gates the
+  // cloud-synced path — signed-out local-only sessions have no household
+  // row to check a subscription against, so they're unaffected.
+  if (
+    authStatus === 'signed_in' &&
+    householdStatus === 'ready' &&
+    household &&
+    household.subscriptionStatus !== 'active' &&
+    household.subscriptionStatus !== 'trialing'
+  ) {
+    return <PaywallScreen subscriptionStatus={household.subscriptionStatus} onSignOut={() => void signOut()} />;
   }
 
   if (view === 'landing') {

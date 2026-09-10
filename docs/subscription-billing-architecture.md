@@ -1,6 +1,9 @@
 # Subscription Billing Architecture
 
-Tracks issue #171: define how Little Loops charges €9.99/month.
+Tracks issue #171: define how Little Loops charges for a subscription.
+Priced at €6.99/month or €70/year (updated 2026-09-10; originally shipped
+at a single €9.99/month price with no annual option — see the pricing
+history note at the bottom of this doc).
 
 ## Context
 
@@ -13,7 +16,7 @@ billing code exists in the repo today — this is a fresh design, not a
 resurrection of the old one.
 
 The current ask is different in two ways:
-- **Recurring**, not one-time (€9.99/month vs. a lifetime unlock)
+- **Recurring**, not one-time (a monthly/annual subscription vs. a lifetime unlock)
 - **Web-only**, not native — so store IAP (which requires a native app
   binary) is not an option; this needs a web payment processor
 
@@ -63,13 +66,15 @@ explicit `update` policy denial (or simply don't grant `update` on these
 columns to the `authenticated` role) alongside the webhook's service-role
 bypass.
 
-## Backend: two Supabase Edge Functions
+## Backend: three Supabase Edge Functions
 
 ### `create-checkout-session`
-- Input: household ID of the caller's household (derived from the
-  authenticated session, not trusted from the client body)
+- Input: `{ plan: 'monthly' | 'annual' }` in the request body, plus the
+  household ID of the caller's household (derived from the authenticated
+  session, not trusted from the client body)
 - Creates (or reuses) a Stripe Customer for the household, creates a
-  Checkout Session in `subscription` mode for the €9.99/month Price, with
+  Checkout Session in `subscription` mode for the selected plan's Price
+  (`STRIPE_PRICE_ID_MONTHLY` / `STRIPE_PRICE_ID_ANNUAL`), with
   `success_url`/`cancel_url` back into the app
 - Returns the Checkout Session URL; the client redirects the browser to it
 - This function needs the Stripe **secret** key as a Supabase Edge Function
@@ -100,38 +105,55 @@ bypass.
   Parent Settings — building a custom cancel/upgrade UI is unnecessary,
   Stripe's hosted portal covers it
 
-## Frontend changes
+## Frontend changes (updated 2026-09-10 — decision made: hard paywall)
 
-- `ParentSettings.tsx`: subscription status section — "Subscribe" button
-  (calls `create-checkout-session`, redirects) when `status` is `none`;
-  "Manage billing" button (calls `customer-portal-session`) when
-  `status` is `active`/`trialing`/`past_due`
-- A household-level entitlement check (e.g. `useHouseholdSubscription()`
-  hook reading `subscription_status` from the already-fetched household
-  row) gates whichever features are meant to be paid-only — this repo
-  doesn't currently have a "free vs. paid" feature split defined, so that
-  gating boundary is a product decision that needs to happen before this
-  is implementable, not a technical one
-- `past_due` should not immediately lock the household out — Stripe's
-  automatic retry (Smart Retries) already gives a grace window; treat
-  `past_due` the same as `active` in the UI, only gate on `canceled`/`none`
+- `ParentSettings.tsx` Billing tab: "Subscribe" button (calls
+  `create-checkout-session`, redirects) when `status` is `none`/`canceled`/
+  `incomplete`; "Manage billing" button (calls `customer-portal-session`)
+  when `status` is `active`/`trialing`; "Update payment method" when
+  `past_due`
+- `PaywallScreen.tsx` + a gate in `Index.tsx`: **everything** behind the
+  subscription — any signed-in household whose `subscription_status` isn't
+  `active`/`trialing` sees a full-screen paywall instead of the app (setup,
+  routines, parent settings, all of it), with plan selection
+  (monthly/annual) and a Subscribe button. `past_due` households see a
+  "update payment method" CTA instead of a fresh Subscribe flow, so they're
+  not offered a second/duplicate subscription.
+- This only gates the **signed-in, cloud-synced** path — signed-out
+  local-only sessions have no household row to check a subscription
+  against, so local/offline mode is unaffected and remains free. Ripping
+  that out too would be a separate, bigger product decision (removing a
+  currently-supported mode, not just adding a check).
 
 ## What's explicitly out of scope for v1
 
 - Free trial period — easy to add later as a Stripe Price/Checkout Session
   parameter, not a schema change, so deferring doesn't cost rework
-- Annual billing option — same, add a second Stripe Price later
 - Proration/multiple households per subscription — current data model is
   one household per parent account (per accounts-architecture.md), so this
   doesn't apply yet
+- Tracking which plan (monthly/annual) a household is on — only
+  `subscription_status`/`current_period_end` are stored, not the interval
+  or amount, so the UI can't currently say "you're on the annual plan" (it
+  just says "renews \<date\>"). Would need a schema addition if wanted.
 
 ## What's needed from Dora before implementation can start
 
-- A Stripe account for Little Loops (test mode is enough to build against)
-- The €9.99/month Price created in the Stripe dashboard, and its Price ID
-- `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` set as Supabase Edge
-  Function secrets (`supabase secrets set`) — these are the only two values
-  needed to wire this up once the design below is implemented
+- ~~A Stripe account for Little Loops~~ — done
+- ~~Prices created in the Stripe dashboard~~ — done (see pricing history
+  below)
+- ~~`STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`~~ — done, set as
+  Supabase Edge Function secrets
+
+## Pricing history
+
+- 2026-09-10: shipped at €9.99/month only (single Price, `create-checkout-session`
+  took no plan parameter)
+- 2026-09-10 (same day, before any real customer subscribed): changed to
+  €6.99/month or €70/year. Old Price archived in Stripe (not deleted — kept
+  for historical Checkout Sessions), new Prices `STRIPE_PRICE_ID_MONTHLY`/
+  `STRIPE_PRICE_ID_ANNUAL` added, `create-checkout-session` now takes
+  `{ plan: 'monthly' | 'annual' }`
 
 ## Build order
 
