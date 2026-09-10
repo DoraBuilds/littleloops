@@ -1,0 +1,26 @@
+{
+  "name": "Little Loops — Daily Routines for Kids",
+  "short_name": "Little Loops",
+  "description": "A playful routine checklist app for kids.",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F3EDFA",
+  "theme_color": "#866CB3",
+  "icons": [
+    {
+      "src": "/favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
