@@ -52,11 +52,17 @@ async function upsertFromSubscription(subscription: Stripe.Subscription) {
   const customerId =
     typeof subscription.customer === "string" ? subscription.customer : subscription.customer.id;
 
+  // A canceled/ended subscription has no current billing period, so Stripe
+  // omits current_period_end from the payload entirely (confirmed via a
+  // live customer.subscription.deleted event, which was silently crashing
+  // this handler with "Invalid time value" before this null check existed).
   const update = {
     stripe_customer_id: customerId,
     stripe_subscription_id: subscription.id,
     subscription_status: mapStatus(subscription.status),
-    current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+    current_period_end: subscription.current_period_end
+      ? new Date(subscription.current_period_end * 1000).toISOString()
+      : null,
   };
 
   // Prefer the household_id we stamped into subscription metadata at
