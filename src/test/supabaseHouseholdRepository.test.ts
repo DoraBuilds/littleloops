@@ -60,6 +60,8 @@ describe('SupabaseHouseholdRepository', () => {
       createdByUserId: 'user-1',
       createdAt: '2026-05-02T12:00:00Z',
       updatedAt: '2026-05-04T12:00:00Z',
+      subscriptionStatus: 'none',
+      currentPeriodEnd: null,
     });
 
     expect(memberSelect).toHaveBeenCalledWith('household_id');
@@ -115,6 +117,8 @@ describe('SupabaseHouseholdRepository', () => {
       createdByUserId: 'user-1',
       createdAt: '2026-05-03T12:00:00Z',
       updatedAt: '2026-05-03T12:00:00Z',
+      subscriptionStatus: 'none',
+      currentPeriodEnd: null,
     });
   });
 

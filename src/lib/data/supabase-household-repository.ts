@@ -26,6 +26,8 @@ const mapHousehold = (row: Record<string, unknown>): HouseholdRecord => ({
   createdByUserId: String(row.created_by_user_id),
   createdAt: String(row.created_at),
   updatedAt: String(row.updated_at),
+  subscriptionStatus: (row.subscription_status as HouseholdRecord['subscriptionStatus']) ?? 'none',
+  currentPeriodEnd: row.current_period_end ? String(row.current_period_end) : null,
 });
 
 const mapMember = (row: Record<string, unknown>): HouseholdMemberRecord => ({

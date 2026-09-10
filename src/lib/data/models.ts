@@ -2,6 +2,14 @@ import type { AgeBucket, HomeScene, IconKey, RoutineType } from '@/lib/types';
 
 export type HouseholdRole = 'owner' | 'parent';
 
+export type SubscriptionStatus =
+  | 'none'
+  | 'trialing'
+  | 'active'
+  | 'past_due'
+  | 'canceled'
+  | 'incomplete';
+
 export interface HouseholdRecord {
   id: string;
   name: string;
@@ -10,6 +18,8 @@ export interface HouseholdRecord {
   createdByUserId: string;
   createdAt: string;
   updatedAt: string;
+  subscriptionStatus: SubscriptionStatus;
+  currentPeriodEnd: string | null;
 }
 
 export interface HouseholdMemberRecord {
