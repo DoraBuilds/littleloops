@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { useAuth } from '@/lib/auth/use-auth';
-import { openBillingPortal, startCheckout } from '@/lib/billing/subscription-client';
 
 type AuthMode = 'signin' | 'signup';
 
@@ -55,8 +54,6 @@ export const AccountSettingsCard = () => {
   const [emailSentTo, setEmailSentTo] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [billingLoading, setBillingLoading] = useState(false);
-  const [billingError, setBillingError] = useState<string | null>(null);
 
   const isCreateMode = mode === 'signup';
   const trimmedEmail = useMemo(() => email.trim(), [email]);
@@ -90,30 +87,6 @@ export const AccountSettingsCard = () => {
     );
     if (ok) setEmailSentTo(trimmedEmail);
     setIsSubmitting(false);
-  };
-
-  const handleStartCheckout = async () => {
-    setBillingLoading(true);
-    setBillingError(null);
-    const { url, error: checkoutError } = await startCheckout();
-    if (url) {
-      window.location.assign(url);
-      return;
-    }
-    setBillingError(checkoutError ?? 'Could not start checkout.');
-    setBillingLoading(false);
-  };
-
-  const handleOpenBillingPortal = async () => {
-    setBillingLoading(true);
-    setBillingError(null);
-    const { url, error: portalError } = await openBillingPortal();
-    if (url) {
-      window.location.assign(url);
-      return;
-    }
-    setBillingError(portalError ?? 'Could not open billing management.');
-    setBillingLoading(false);
   };
 
   const handleDeleteAccount = async () => {
@@ -278,64 +251,6 @@ export const AccountSettingsCard = () => {
               </div>
             )}
           </div>
-
-          {/* Subscription panel */}
-          {householdStatus === 'ready' && household && (
-            <div style={{ background: T.cream, borderRadius: 18, padding: '14px 16px', border: `1.5px solid ${T.border}` }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: T.inkMute, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>
-                💳 Subscription
-              </div>
-              {household.subscriptionStatus === 'active' || household.subscriptionStatus === 'trialing' ? (
-                <>
-                  <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Little Loops is active</div>
-                  <div style={{ fontSize: 12, color: T.inkMute, lineHeight: 1.5, marginBottom: 12 }}>
-                    €9.99/month
-                    {household.currentPeriodEnd
-                      ? ` · renews ${new Date(household.currentPeriodEnd).toLocaleDateString()}`
-                      : ''}
-                  </div>
-                  <button
-                    onClick={() => void handleOpenBillingPortal()}
-                    disabled={billingLoading}
-                    style={{ background: T.white, border: `1.5px solid ${T.border}`, borderRadius: 12, padding: '8px 14px', fontSize: 12, fontWeight: 700, color: T.ink, cursor: billingLoading ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}
-                  >
-                    {billingLoading ? 'Opening…' : 'Manage billing'}
-                  </button>
-                </>
-              ) : household.subscriptionStatus === 'past_due' ? (
-                <>
-                  <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: '#dc2626' }}>Payment needs attention</div>
-                  <div style={{ fontSize: 12, color: T.inkMute, lineHeight: 1.5, marginBottom: 12 }}>
-                    Your last payment didn't go through. Update your card to keep Little Loops active.
-                  </div>
-                  <button
-                    onClick={() => void handleOpenBillingPortal()}
-                    disabled={billingLoading}
-                    style={{ background: '#dc2626', color: '#fff', border: 'none', borderRadius: 12, padding: '8px 14px', fontSize: 12, fontWeight: 700, cursor: billingLoading ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}
-                  >
-                    {billingLoading ? 'Opening…' : 'Update payment method'}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Subscribe to Little Loops</div>
-                  <div style={{ fontSize: 12, color: T.inkMute, lineHeight: 1.5, marginBottom: 12 }}>
-                    €9.99/month for full access, synced across every device.
-                  </div>
-                  <button
-                    onClick={() => void handleStartCheckout()}
-                    disabled={billingLoading}
-                    style={{ background: T.orange, color: '#fff', border: 'none', borderRadius: 12, padding: '8px 14px', fontSize: 12, fontWeight: 700, cursor: billingLoading ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}
-                  >
-                    {billingLoading ? 'Loading…' : 'Subscribe — €9.99/mo'}
-                  </button>
-                </>
-              )}
-              {billingError && (
-                <div style={{ marginTop: 10, fontSize: 12, color: '#dc2626' }}>⚠️ {billingError}</div>
-              )}
-            </div>
-          )}
         </div>
 
       ) : (
